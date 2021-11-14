@@ -173,6 +173,8 @@ extern volatile pde_t uvpd[];     // VA of current page directory
  * with page2pa() in kern/pmap.h.
  */
 struct PageInfo {
+    // pp_ref 表示有多少个指针指向该页
+    // pp_link 表示空闲内存列表中的下一页
 	// Next page on the free list.
 	struct PageInfo *pp_link;
 
