@@ -132,9 +132,6 @@ mem_init(void) {
     // Find out how much memory the machine has (npages & npages_basemem).
     i386_detect_memory();
 
-    // Remove this line when you're ready to test this function.
-//    panic("mem_init: This function is not finished\n");
-
     //////////////////////////////////////////////////////////////////////
     // create initial page directory.
     kern_pgdir = (pde_t *) boot_alloc(PGSIZE);
@@ -302,7 +299,9 @@ page_alloc(int alloc_flags) {
 
     if (alloc_flags & ALLOC_ZERO) {
         // 反馈kernel地址
-        memset(page2kva(page_to_alloc), 0, PGSIZE);
+        // returned physical page with '\0' bytes
+        // 只要分配空间，不需要counter加1
+        memset(page2kva(page_to_alloc), '\0', PGSIZE);
     }
     return page_to_alloc;
 }
@@ -315,7 +314,6 @@ void
 page_free(struct PageInfo *pp) {
     if (pp->pp_ref != 0 || pp->pp_link != NULL) {
         panic("pp->pp_ref is nonzero or pp->pp_link is not NULL\\n");
-        return;
     }
     pp->pp_link = page_free_list;
     page_free_list = pp;
@@ -335,6 +333,8 @@ page_decref(struct PageInfo *pp) {
 // a pointer to the page table entry (PTE) for linear address 'va'.
 // This requires walking the two-level page table structure.
 //
+// 二级页表中，directory为第一级，table为第二级
+//
 // The relevant page table page might not exist yet.
 // If this is true, and create == false, then pgdir_walk returns NULL.
 // Otherwise, pgdir_walk allocates a new page table page with page_alloc.
@@ -352,11 +352,46 @@ page_decref(struct PageInfo *pp) {
 //
 // Hint 3: look at inc/mmu.h for useful macros that manipulate page
 // table and page directory entries.
-//
+/**
+ * 查找一个虚拟地址对应的页表项地址
+ * @param pgdir 页目录项指针
+ * @param va 虚拟地址
+ * @param create 若页目录项不存在是否创建
+ * @return 页表项指针
+ */
 pte_t *
 pgdir_walk(pde_t *pgdir, const void *va, int create) {
-    // Fill this function in
-    return NULL;
+    // page directory index
+    uint32_t page_dir_idx = PDX(va);
+    // page table index
+    uint32_t page_table_idx = PTX(va);
+
+    pte_t *pgtable;
+    pde_t *pde = &pgdir[page_dir_idx];
+
+    // page directory 存在
+    // 需要确保是Present状态
+    if (*pde & PTE_P) {
+        // 最后返回的是kernel virtual地址的表，要把PTE_ADDR的物理地址转成虚拟地址
+        pgtable = KADDR(PTE_ADDR(*pde));
+    } else if (create) {
+        struct PageInfo *new_page_info = page_alloc(ALLOC_ZERO);
+        if (!new_page_info)
+            return NULL;
+
+        // 指针数加一
+        new_page_info->pp_ref++;
+
+        // 将 PageInfo* 转成物理地址，再转成kv地址
+        pgtable = KADDR(page2pa(new_page_info));
+
+        // 用于给check_page权限，权限都有了
+        *pde = page2pa(new_page_info) | PTE_SYSCALL;
+    } else
+        // create == false, pgdir_walk returns NULL.
+        return NULL;
+
+    return &pgtable[page_table_idx];
 }
 
 //
@@ -370,9 +405,22 @@ pgdir_walk(pde_t *pgdir, const void *va, int create) {
 // mapped pages.
 //
 // Hint: the TA solution uses pgdir_walk
+/**
+ * 映射一片指定虚拟页到指定物理页
+ * @param pgdir
+ * @param va
+ * @param size
+ * @param pa
+ * @param perm
+ */
 static void
 boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm) {
-    // Fill this function in
+    // 一页4096
+    for (int i = 0; i < size; i += PGSIZE) {
+        // 找到物理地址
+        pte_t *pte = pgdir_walk(pgdir, (const void *) va + i, 1);
+        *pte = (pa + i) | PTE_P | perm;
+    }
 }
 
 //
@@ -402,7 +450,17 @@ boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm
 //
 int
 page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm) {
-    // Fill this function in
+    // 查找，找不到就新建
+    pte_t *pte = pgdir_walk(pgdir, va, 1);
+    // 没有内存了，所以无法插入
+    if (!pte)
+        return -E_NO_MEM;
+    pp->pp_ref++;
+    // 当前虚拟地址已经映射了一个物理页表，删除已有的表
+    if (*pte & PTE_P)
+        page_remove(pgdir, va);
+    // 插入，找到当前的pp的物理地址
+    *pte = page2pa(pp) | perm | PTE_P;
     return 0;
 }
 
@@ -417,10 +475,27 @@ page_insert(pde_t *pgdir, struct PageInfo *pp, void *va, int perm) {
 //
 // Hint: the TA solution uses pgdir_walk and pa2page.
 //
+/**
+ * 查找一个虚拟地址对应的页表项地址
+ * @param pgdir 页目录项指针
+ * @param va 虚拟地址
+ * @param pte_store 指向页表指针的指针
+ * @return 页表项指针
+ */
 struct PageInfo *
 page_lookup(pde_t *pgdir, void *va, pte_t **pte_store) {
-    // Fill this function in
-    return NULL;
+    // 只查找，所以create=0
+    pte_t *pte = pgdir_walk(pgdir, va, 0);
+    if (!pte)
+        return NULL;
+
+    if (pte_store) {
+        // 将当前指针挪到查找到的那个表
+        *pte_store = pte;
+    }
+    // TODO: pte/pde的地址需要通过PTE_ADDR交互而不是PADDR
+    return pa2page(PTE_ADDR(*pte));
+
 }
 
 //
@@ -440,7 +515,17 @@ page_lookup(pde_t *pgdir, void *va, pte_t **pte_store) {
 //
 void
 page_remove(pde_t *pgdir, void *va) {
-    // Fill this function in
+    pte_t *pte_store;
+    struct PageInfo *info = page_lookup(pgdir, va, &pte_store);
+    if (!info)
+        return;
+    // 将info->ref清零，然后free page
+    page_decref(info);
+    // 将当前页表指针的值清零，无法再查到该地址
+    *pte_store = 0;
+    // 将快表flush失效
+    // tlb是个高速缓存，用来缓存查找记录增加查找速度。
+    tlb_invalidate(pgdir, va);
 }
 
 //

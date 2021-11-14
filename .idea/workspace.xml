@@ -35,10 +35,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="">
+    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab2B">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/grade-lab2" beforeDir="false" afterPath="$PROJECT_DIR$/grade-lab2" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inc/memlayout.h" beforeDir="false" afterPath="$PROJECT_DIR$/inc/memlayout.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kern/pmap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/pmap.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -57,7 +55,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="lab2" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -94,6 +92,7 @@
   <component name="Push.Settings">
     <force-push-targets>
       <force-push-target remote-path="origin" branch="main" />
+      <force-push-target remote-path="origin" branch="lab2" />
     </force-push-targets>
   </component>
   <component name="RunManager" selected="Makefile Application.all">
@@ -207,6 +206,11 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="Makefile Application.all" />
       <item itemvalue="Makefile Application.always" />
@@ -242,7 +246,7 @@
       <updated>1636547628915</updated>
       <workItem from="1636547630505" duration="4854000" />
       <workItem from="1636552514820" duration="7015000" />
-      <workItem from="1636856745772" duration="9703000" />
+      <workItem from="1636856745772" duration="13034000" />
     </task>
     <task id="LOCAL-00001" summary="shell">
       <created>1636557338424</created>
@@ -258,7 +262,21 @@
       <option name="project" value="LOCAL" />
       <updated>1636559476253</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="lab2A">
+      <created>1636881025306</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1636881025306</updated>
+    </task>
+    <task id="LOCAL-00004" summary="lab2B">
+      <created>1636903933708</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1636903933708</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -291,6 +309,8 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="shell" />
     <MESSAGE value="err" />
-    <option name="LAST_COMMIT_MESSAGE" value="err" />
+    <MESSAGE value="lab2A" />
+    <MESSAGE value="lab2B" />
+    <option name="LAST_COMMIT_MESSAGE" value="lab2B" />
   </component>
 </project>
