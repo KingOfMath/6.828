@@ -11,9 +11,11 @@
 
 extern char bootstacktop[], bootstack[];
 
+// 页信息
 extern struct PageInfo *pages;
 extern size_t npages;
 
+// 用于映射的pgdir一级目录
 extern pde_t *kern_pgdir;
 
 

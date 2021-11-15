@@ -38,6 +38,7 @@
     <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab2B">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kern/pmap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/pmap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/pmap.h" beforeDir="false" afterPath="$PROJECT_DIR$/kern/pmap.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -87,7 +88,7 @@
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="Push.Settings">
     <force-push-targets>
@@ -276,7 +277,14 @@
       <option name="project" value="LOCAL" />
       <updated>1636903933708</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="lab2B">
+      <created>1636904043649</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1636904043649</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

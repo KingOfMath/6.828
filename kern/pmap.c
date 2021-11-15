@@ -170,6 +170,7 @@ mem_init(void) {
 
     //////////////////////////////////////////////////////////////////////
     // Now we set up virtual memory
+    // 从物理地址映射到虚拟地址
 
     //////////////////////////////////////////////////////////////////////
     // Map 'pages' read-only by the user at linear address UPAGES
@@ -178,6 +179,7 @@ mem_init(void) {
     //      (ie. perm = PTE_U | PTE_P)
     //    - pages itself -- kernel RW, user NONE
     // Your code goes here:
+    boot_map_region(kern_pgdir, UPAGES, npages* sizeof(struct PageInfo), PADDR(pages), PTE_U | PTE_P);
 
     //////////////////////////////////////////////////////////////////////
     // Use the physical memory that 'bootstack' refers to as the kernel
@@ -190,6 +192,7 @@ mem_init(void) {
     //       overwrite memory.  Known as a "guard page".
     //     Permissions: kernel RW, user NONE
     // Your code goes here:
+    boot_map_region(kern_pgdir, KSTACKTOP-KSTKSIZE, KSTKSIZE, PADDR(bootstack), PTE_W);
 
     //////////////////////////////////////////////////////////////////////
     // Map all of physical memory at KERNBASE.
@@ -199,6 +202,8 @@ mem_init(void) {
     // we just set up the mapping anyway.
     // Permissions: kernel RW, user NONE
     // Your code goes here:
+    // 2^32 => 0xffffffff
+    boot_map_region(kern_pgdir, KERNBASE, 0xffffffff - KERNBASE, 0, PTE_W);
 
     // Check that the initial page directory has been set up correctly.
     check_kern_pgdir();
@@ -407,11 +412,11 @@ pgdir_walk(pde_t *pgdir, const void *va, int create) {
 // Hint: the TA solution uses pgdir_walk
 /**
  * 映射一片指定虚拟页到指定物理页
- * @param pgdir
- * @param va
- * @param size
- * @param pa
- * @param perm
+ * @param pgdir 页目录项指针
+ * @param va 虚拟地址
+ * @param size 映射长度
+ * @param pa 物理地址
+ * @param perm 权限
  */
 static void
 boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm) {
