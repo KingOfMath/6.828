@@ -35,9 +35,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="">
+    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab2C">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lab2.txt" beforeDir="false" afterPath="$PROJECT_DIR$/lab2.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inc/elf.h" beforeDir="false" afterPath="$PROJECT_DIR$/inc/elf.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/env.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/env.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/pmap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/pmap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/syscall.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/syscall.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/trap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/trapentry.S" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trapentry.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libmain.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/libmain.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,10 +61,11 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="lab3" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="MIXED" />
   </component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
@@ -284,7 +291,21 @@
       <option name="project" value="LOCAL" />
       <updated>1636904043649</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="lab2C">
+      <created>1637155551616</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1637155551616</updated>
+    </task>
+    <task id="LOCAL-00007" summary="lab2C">
+      <created>1637155637072</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1637155637072</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -319,6 +340,7 @@
     <MESSAGE value="err" />
     <MESSAGE value="lab2A" />
     <MESSAGE value="lab2B" />
-    <option name="LAST_COMMIT_MESSAGE" value="lab2B" />
+    <MESSAGE value="lab2C" />
+    <option name="LAST_COMMIT_MESSAGE" value="lab2C" />
   </component>
 </project>
