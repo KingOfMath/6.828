@@ -62,12 +62,19 @@ i386_detect_memory(void) {
 // --------------------------------------------------------------
 
 static void mem_init_mp(void);
+
 static void boot_map_region(pde_t *pgdir, uintptr_t va, size_t size, physaddr_t pa, int perm);
+
 static void check_page_free_list(bool only_low_memory);
+
 static void check_page_alloc(void);
+
 static void check_kern_pgdir(void);
+
 static physaddr_t check_va2pa(pde_t *pgdir, uintptr_t va);
+
 static void check_page(void);
+
 static void check_page_installed_pgdir(void);
 
 // This simple physical memory allocator is used only while JOS is setting
@@ -212,7 +219,7 @@ mem_init(void) {
     // Your code goes here:
     boot_map_region(kern_pgdir, KSTACKTOP - KSTKSIZE, KSTKSIZE, PADDR(bootstack), PTE_W);
 
-    //////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////home/yanzhuo////////////
     // Map all of physical memory at KERNBASE.
     // Ie.  the VA range [KERNBASE, 2^32) should map to
     //      the PA range [0, 2^32 - KERNBASE)
@@ -223,11 +230,11 @@ mem_init(void) {
     // 2^32 => 0xffffffff
     boot_map_region(kern_pgdir, KERNBASE, 0xffffffff - KERNBASE, 0, PTE_W);
 
-	// Initialize the SMP-related parts of the memory map
-	mem_init_mp();
+    // Initialize the SMP-related parts of the memory map
+    mem_init_mp();
 
-	// Check that the initial page directory has been set up correctly.
-	check_kern_pgdir();
+    // Check that the initial page directory has been set up correctly.
+    check_kern_pgdir();
 
     // Switch from the minimal entry page directory to the full kern_pgdir
     // page table we just created.	Our instruction pointer should be
@@ -255,25 +262,29 @@ mem_init(void) {
 //   - Map the per-CPU stacks in the region [KSTACKTOP-PTSIZE, KSTACKTOP)
 //
 static void
-mem_init_mp(void)
-{
-	// Map per-CPU stacks starting at KSTACKTOP, for up to 'NCPU' CPUs.
-	//
-	// For CPU i, use the physical memory that 'percpu_kstacks[i]' refers
-	// to as its kernel stack. CPU i's kernel stack grows down from virtual
-	// address kstacktop_i = KSTACKTOP - i * (KSTKSIZE + KSTKGAP), and is
-	// divided into two pieces, just like the single stack you set up in
-	// mem_init:
-	//     * [kstacktop_i - KSTKSIZE, kstacktop_i)
-	//          -- backed by physical memory
-	//     * [kstacktop_i - (KSTKSIZE + KSTKGAP), kstacktop_i - KSTKSIZE)
-	//          -- not backed; so if the kernel overflows its stack,
-	//             it will fault rather than overwrite another CPU's stack.
-	//             Known as a "guard page".
-	//     Permissions: kernel RW, user NONE
-	//
-	// LAB 4: Your code here:
-
+mem_init_mp(void) {
+    // Map per-CPU stacks starting at KSTACKTOP, for up to 'NCPU' CPUs.
+    //
+    // For CPU i, use the physical memory that 'percpu_kstacks[i]' refers
+    // to as its kernel stack. CPU i's kernel stack grows down from virtual
+    // address kstacktop_i = KSTACKTOP - i * (KSTKSIZE + KSTKGAP), and is
+    // divided into two pieces, just like the single stack you set up in
+    // mem_init:
+    //     * [kstacktop_i - KSTKSIZE, kstacktop_i)
+    //          -- backed by physical memory
+    //     * [kstacktop_i - (KSTKSIZE + KSTKGAP), kstacktop_i - KSTKSIZE)
+    //          -- not backed; so if the kernel overflows its stack,
+    //             it will fault rather than overwrite another CPU's stack.
+    //             Known as a "guard page".
+    //     Permissions: kernel RW, user NONE
+    //
+    // LAB 4: Your code here:
+    for (int i = 0; i < NCPU; ++i) {
+        uintptr_t kstacktop_i = KSTACKTOP - i * (KSTKSIZE + KSTKGAP);
+        // backed by [kstacktop_i - KSTKSIZE, kstacktop_i) physical memory
+        boot_map_region(kern_pgdir, kstacktop_i-KSTKSIZE, KSTKSIZE,
+                        PADDR(percpu_kstacks[i]), PTE_W);
+    }
 }
 
 // --------------------------------------------------------------
@@ -297,6 +308,11 @@ page_init(void) {
     //  2) The rest of base memory, [PGSIZE, npages_basemem * PGSIZE) is free.
     size_t i;
     for (i = 1; i < npages_basemem; i++) {
+        // 0x7000
+        // 系统通过BSP引导之后，剩下的被激活的AP处理器就不用引导系统了，而是直接把地址为0x7000作为入口地址，开始执行系统。
+        // 防止这个地址被改为空页
+        if (i == PGNUM(MPENTRY_PADDR))
+            continue;
         pages[i].pp_ref = 0;
         pages[i].pp_link = page_free_list;
         page_free_list = &pages[i];
@@ -584,11 +600,10 @@ page_remove(pde_t *pgdir, void *va) {
 // edited are the ones currently in use by the processor.
 //
 void
-tlb_invalidate(pde_t *pgdir, void *va)
-{
-	// Flush the entry only if we're modifying the current address space.
-	if (!curenv || curenv->env_pgdir == pgdir)
-		invlpg(va);
+tlb_invalidate(pde_t *pgdir, void *va) {
+    // Flush the entry only if we're modifying the current address space.
+    if (!curenv || curenv->env_pgdir == pgdir)
+        invlpg(va);
 }
 
 //
@@ -597,33 +612,46 @@ tlb_invalidate(pde_t *pgdir, void *va)
 // have to be multiple of PGSIZE.
 //
 void *
-mmio_map_region(physaddr_t pa, size_t size)
-{
-	// Where to start the next region.  Initially, this is the
-	// beginning of the MMIO region.  Because this is static, its
-	// value will be preserved between calls to mmio_map_region
-	// (just like nextfree in boot_alloc).
-	static uintptr_t base = MMIOBASE;
+mmio_map_region(physaddr_t pa, size_t size) {
+    // Where to start the next region.  Initially, this is the
+    // beginning of the MMIO region.  Because this is static, its
+    // value will be preserved between calls to mmio_map_region
+    // (just like nextfree in boot_alloc).
+    static uintptr_t base = MMIOBASE;
 
-	// Reserve size bytes of virtual memory starting at base and
-	// map physical pages [pa,pa+size) to virtual addresses
-	// [base,base+size).  Since this is device memory and not
-	// regular DRAM, you'll have to tell the CPU that it isn't
-	// safe to cache access to this memory.  Luckily, the page
-	// tables provide bits for this purpose; simply create the
-	// mapping with PTE_PCD|PTE_PWT (cache-disable and
-	// write-through) in addition to PTE_W.  (If you're interested
-	// in more details on this, see section 10.5 of IA32 volume
-	// 3A.)
-	//
-	// Be sure to round size up to a multiple of PGSIZE and to
-	// handle if this reservation would overflow MMIOLIM (it's
-	// okay to simply panic if this happens).
-	//
-	// Hint: The staff solution uses boot_map_region.
-	//
-	// Your code here:
-	panic("mmio_map_region not implemented");
+    // Reserve size bytes of virtual memory starting at base and
+    // map physical pages [pa,pa+size) to virtual addresses
+    // [base,base+size).  Since this is device memory and not
+    // regular DRAM, you'll have to tell the CPU that it isn't
+    // safe to cache access to this memory.  Luckily, the page
+    // tables provide bits for this purpose; simply create the
+    // mapping with PTE_PCD|PTE_PWT (cache-disable and
+    // write-through) in addition to PTE_W.  (If you're interested
+    // in more details on this, see section 10.5 of IA32 volume
+    // 3A.)
+    //
+    // Be sure to round size up to a multiple of PGSIZE and to
+    // handle if this reservation would overflow MMIOLIM (it's
+    // okay to simply panic if this happens).
+    //
+    // Hint: The staff solution uses boot_map_region.
+    //
+    // Your code here:
+    uintptr_t res = base;
+
+    // round size up to a multiple of PGSIZE
+    size = ROUNDUP(size, PGSIZE);
+
+    // base is static
+    base += size;
+
+    // if this reservation would overflow MMIOLIM
+    if (base >= MMIOLIM)
+        panic("Overflow in MMIOLIM");
+
+    boot_map_region(kern_pgdir, res, size, pa, PTE_PCD | PTE_PWT | PTE_W);
+
+    return (void *) res;
 }
 
 static uintptr_t user_mem_check_addr;
@@ -647,53 +675,7 @@ static uintptr_t user_mem_check_addr;
 // and -E_FAULT otherwise.
 //
 int
-user_mem_check(struct Env *env, const void *va, size_t len, int perm)
-{
-	// LAB 3: Your code here.
-
-	return 0;
-}
-
-//
-// Checks that environment 'env' is allowed to access the range
-// of memory [va, va+len) with permissions 'perm | PTE_U | PTE_P'.
-// If it can, then the function simply returns.
-// If it cannot, 'env' is destroyed and, if env is the current
-// environment, this function will not return.
-//
-void
-user_mem_assert(struct Env *env, const void *va, size_t len, int perm)
-{
-	if (user_mem_check(env, va, len, perm | PTE_U) < 0) {
-		cprintf("[%08x] user_mem_check assertion failure for "
-			"va %08x\n", env->env_id, user_mem_check_addr);
-		env_destroy(env);	// may not return
-	}
-}
-
-static uintptr_t user_mem_check_addr;
-
-//
-// Check that an environment is allowed to access the range of memory
-// [va, va+len) with permissions 'perm | PTE_P'.
-// Normally 'perm' will contain PTE_U at least, but this is not required.
-// 'va' and 'len' need not be page-aligned; you must test every page that
-// contains any of that range.  You will test either 'len/PGSIZE',
-// 'len/PGSIZE + 1', or 'len/PGSIZE + 2' pages.
-//
-// A user program can access a virtual address if (1) the address is below
-// ULIM, and (2) the page table gives it permission.  These are exactly
-// the tests you should implement here.
-//
-// If there is an error, set the 'user_mem_check_addr' variable to the first
-// erroneous virtual address.
-//
-// Returns 0 if the user program can access this range of addresses,
-// and -E_FAULT otherwise.
-//
-int
-user_mem_check(struct Env *env, const void *va, size_t len, int perm)
-{
+user_mem_check(struct Env *env, const void *va, size_t len, int perm) {
     // LAB 3: Your code here.
 
     size_t start = (size_t) ROUNDDOWN(va, PGSIZE);
@@ -702,7 +684,7 @@ user_mem_check(struct Env *env, const void *va, size_t len, int perm)
     while (start < end) {
         pte_t *pte = pgdir_walk(env->env_pgdir, (void *) start, 0);
         if (start >= ULIM || !pte || !(*pte & PTE_P) || ((*pte & perm) != perm)) {
-            user_mem_check_addr = start > (size_t) va? start : (size_t) va;
+            user_mem_check_addr = start > (size_t) va ? start : (size_t) va;
             return -E_FAULT;
         }
 
@@ -720,12 +702,11 @@ user_mem_check(struct Env *env, const void *va, size_t len, int perm)
 // environment, this function will not return.
 //
 void
-user_mem_assert(struct Env *env, const void *va, size_t len, int perm)
-{
+user_mem_assert(struct Env *env, const void *va, size_t len, int perm) {
     if (user_mem_check(env, va, len, perm | PTE_U) < 0) {
         cprintf("[%08x] user_mem_check assertion failure for "
                 "va %08x\n", env->env_id, user_mem_check_addr);
-        env_destroy(env);	// may not return
+        env_destroy(env);    // may not return
     }
 }
 
@@ -775,14 +756,14 @@ check_page_free_list(bool only_low_memory) {
         assert(pp < pages + npages);
         assert(((char *) pp - (char *) pages) % sizeof(*pp) == 0);
 
-		// check a few pages that shouldn't be on the free list
-		assert(page2pa(pp) != 0);
-		assert(page2pa(pp) != IOPHYSMEM);
-		assert(page2pa(pp) != EXTPHYSMEM - PGSIZE);
-		assert(page2pa(pp) != EXTPHYSMEM);
-		assert(page2pa(pp) < EXTPHYSMEM || (char *) page2kva(pp) >= first_free_page);
-		// (new test for lab 4)
-		assert(page2pa(pp) != MPENTRY_PADDR);
+        // check a few pages that shouldn't be on the free list
+        assert(page2pa(pp) != 0);
+        assert(page2pa(pp) != IOPHYSMEM);
+        assert(page2pa(pp) != EXTPHYSMEM - PGSIZE);
+        assert(page2pa(pp) != EXTPHYSMEM);
+        assert(page2pa(pp) < EXTPHYSMEM || (char *) page2kva(pp) >= first_free_page);
+        // (new test for lab 4)
+        assert(page2pa(pp) != MPENTRY_PADDR);
 
         if (page2pa(pp) < EXTPHYSMEM)
             ++nfree_basemem;
@@ -882,58 +863,57 @@ check_page_alloc(void) {
 //
 
 static void
-check_kern_pgdir(void)
-{
+check_kern_pgdir(void) {
     uint32_t i, n;
     pde_t *pgdir;
 
     pgdir = kern_pgdir;
 
     // check pages array
-    n = ROUNDUP(npages*sizeof(struct PageInfo), PGSIZE);
+    n = ROUNDUP(npages * sizeof(struct PageInfo), PGSIZE);
     for (i = 0; i < n; i += PGSIZE)
         assert(check_va2pa(pgdir, UPAGES + i) == PADDR(pages) + i);
 
-	// check envs array (new test for lab 3)
-	n = ROUNDUP(NENV*sizeof(struct Env), PGSIZE);
-	for (i = 0; i < n; i += PGSIZE)
-		assert(check_va2pa(pgdir, UENVS + i) == PADDR(envs) + i);
+    // check envs array (new test for lab 3)
+    n = ROUNDUP(NENV * sizeof(struct Env), PGSIZE);
+    for (i = 0; i < n; i += PGSIZE)
+        assert(check_va2pa(pgdir, UENVS + i) == PADDR(envs) + i);
 
     // check phys mem
     for (i = 0; i < npages * PGSIZE; i += PGSIZE)
         assert(check_va2pa(pgdir, KERNBASE + i) == i);
 
-	// check kernel stack
-	// (updated in lab 4 to check per-CPU kernel stacks)
-	for (n = 0; n < NCPU; n++) {
-		uint32_t base = KSTACKTOP - (KSTKSIZE + KSTKGAP) * (n + 1);
-		for (i = 0; i < KSTKSIZE; i += PGSIZE)
-			assert(check_va2pa(pgdir, base + KSTKGAP + i)
-				== PADDR(percpu_kstacks[n]) + i);
-		for (i = 0; i < KSTKGAP; i += PGSIZE)
-			assert(check_va2pa(pgdir, base + i) == ~0);
-	}
+    // check kernel stack
+    // (updated in lab 4 to check per-CPU kernel stacks)
+    for (n = 0; n < NCPU; n++) {
+        uint32_t base = KSTACKTOP - (KSTKSIZE + KSTKGAP) * (n + 1);
+        for (i = 0; i < KSTKSIZE; i += PGSIZE)
+            assert(check_va2pa(pgdir, base + KSTKGAP + i)
+                   == PADDR(percpu_kstacks[n]) + i);
+        for (i = 0; i < KSTKGAP; i += PGSIZE)
+            assert(check_va2pa(pgdir, base + i) == ~0);
+    }
 
-	// check PDE permissions
-	for (i = 0; i < NPDENTRIES; i++) {
-		switch (i) {
-		case PDX(UVPT):
-		case PDX(KSTACKTOP-1):
-		case PDX(UPAGES):
-		case PDX(UENVS):
-		case PDX(MMIOBASE):
-			assert(pgdir[i] & PTE_P);
-			break;
-		default:
-			if (i >= PDX(KERNBASE)) {
-				assert(pgdir[i] & PTE_P);
-				assert(pgdir[i] & PTE_W);
-			} else
-				assert(pgdir[i] == 0);
-			break;
-		}
-	}
-	cprintf("check_kern_pgdir() succeeded!\n");
+    // check PDE permissions
+    for (i = 0; i < NPDENTRIES; i++) {
+        switch (i) {
+            case PDX(UVPT):
+            case PDX(KSTACKTOP - 1):
+            case PDX(UPAGES):
+            case PDX(UENVS):
+            case PDX(MMIOBASE):
+                assert(pgdir[i] & PTE_P);
+                break;
+            default:
+                if (i >= PDX(KERNBASE)) {
+                    assert(pgdir[i] & PTE_P);
+                    assert(pgdir[i] & PTE_W);
+                } else
+                    assert(pgdir[i] == 0);
+                break;
+        }
+    }
+    cprintf("check_kern_pgdir() succeeded!\n");
 }
 
 // This function returns the physical address of the page containing 'va',
@@ -957,15 +937,14 @@ check_va2pa(pde_t *pgdir, uintptr_t va) {
 
 // check page_insert, page_remove, &c
 static void
-check_page(void)
-{
-	struct PageInfo *pp, *pp0, *pp1, *pp2;
-	struct PageInfo *fl;
-	pte_t *ptep, *ptep1;
-	void *va;
-	uintptr_t mm1, mm2;
-	int i;
-	extern pde_t entry_pgdir[];
+check_page(void) {
+    struct PageInfo *pp, *pp0, *pp1, *pp2;
+    struct PageInfo *fl;
+    pte_t *ptep, *ptep1;
+    void *va;
+    uintptr_t mm1, mm2;
+    int i;
+    extern pde_t entry_pgdir[];
 
     // should be able to allocate three pages
     pp0 = pp1 = pp2 = 0;
@@ -1067,109 +1046,108 @@ check_page(void)
     assert(pp1->pp_ref == 0);
     assert(pp2->pp_ref == 0);
 
-	// so it should be returned by page_alloc
-	assert((pp = page_alloc(0)) && pp == pp1);
+    // so it should be returned by page_alloc
+    assert((pp = page_alloc(0)) && pp == pp1);
 
-	// should be no free memory
-	assert(!page_alloc(0));
+    // should be no free memory
+    assert(!page_alloc(0));
 
-	// forcibly take pp0 back
-	assert(PTE_ADDR(kern_pgdir[0]) == page2pa(pp0));
-	kern_pgdir[0] = 0;
-	assert(pp0->pp_ref == 1);
-	pp0->pp_ref = 0;
+    // forcibly take pp0 back
+    assert(PTE_ADDR(kern_pgdir[0]) == page2pa(pp0));
+    kern_pgdir[0] = 0;
+    assert(pp0->pp_ref == 1);
+    pp0->pp_ref = 0;
 
-	// check pointer arithmetic in pgdir_walk
-	page_free(pp0);
-	va = (void*)(PGSIZE * NPDENTRIES + PGSIZE);
-	ptep = pgdir_walk(kern_pgdir, va, 1);
-	ptep1 = (pte_t *) KADDR(PTE_ADDR(kern_pgdir[PDX(va)]));
-	assert(ptep == ptep1 + PTX(va));
-	kern_pgdir[PDX(va)] = 0;
-	pp0->pp_ref = 0;
+    // check pointer arithmetic in pgdir_walk
+    page_free(pp0);
+    va = (void *) (PGSIZE * NPDENTRIES + PGSIZE);
+    ptep = pgdir_walk(kern_pgdir, va, 1);
+    ptep1 = (pte_t *) KADDR(PTE_ADDR(kern_pgdir[PDX(va)]));
+    assert(ptep == ptep1 + PTX(va));
+    kern_pgdir[PDX(va)] = 0;
+    pp0->pp_ref = 0;
 
-	// check that new page tables get cleared
-	memset(page2kva(pp0), 0xFF, PGSIZE);
-	page_free(pp0);
-	pgdir_walk(kern_pgdir, 0x0, 1);
-	ptep = (pte_t *) page2kva(pp0);
-	for(i=0; i<NPTENTRIES; i++)
-		assert((ptep[i] & PTE_P) == 0);
-	kern_pgdir[0] = 0;
-	pp0->pp_ref = 0;
+    // check that new page tables get cleared
+    memset(page2kva(pp0), 0xFF, PGSIZE);
+    page_free(pp0);
+    pgdir_walk(kern_pgdir, 0x0, 1);
+    ptep = (pte_t *) page2kva(pp0);
+    for (i = 0; i < NPTENTRIES; i++)
+        assert((ptep[i] & PTE_P) == 0);
+    kern_pgdir[0] = 0;
+    pp0->pp_ref = 0;
 
-	// give free list back
-	page_free_list = fl;
+    // give free list back
+    page_free_list = fl;
 
-	// free the pages we took
-	page_free(pp0);
-	page_free(pp1);
-	page_free(pp2);
+    // free the pages we took
+    page_free(pp0);
+    page_free(pp1);
+    page_free(pp2);
 
-	// test mmio_map_region
-	mm1 = (uintptr_t) mmio_map_region(0, 4097);
-	mm2 = (uintptr_t) mmio_map_region(0, 4096);
-	// check that they're in the right region
-	assert(mm1 >= MMIOBASE && mm1 + 8192 < MMIOLIM);
-	assert(mm2 >= MMIOBASE && mm2 + 8192 < MMIOLIM);
-	// check that they're page-aligned
-	assert(mm1 % PGSIZE == 0 && mm2 % PGSIZE == 0);
-	// check that they don't overlap
-	assert(mm1 + 8192 <= mm2);
-	// check page mappings
-	assert(check_va2pa(kern_pgdir, mm1) == 0);
-	assert(check_va2pa(kern_pgdir, mm1+PGSIZE) == PGSIZE);
-	assert(check_va2pa(kern_pgdir, mm2) == 0);
-	assert(check_va2pa(kern_pgdir, mm2+PGSIZE) == ~0);
-	// check permissions
-	assert(*pgdir_walk(kern_pgdir, (void*) mm1, 0) & (PTE_W|PTE_PWT|PTE_PCD));
-	assert(!(*pgdir_walk(kern_pgdir, (void*) mm1, 0) & PTE_U));
-	// clear the mappings
-	*pgdir_walk(kern_pgdir, (void*) mm1, 0) = 0;
-	*pgdir_walk(kern_pgdir, (void*) mm1 + PGSIZE, 0) = 0;
-	*pgdir_walk(kern_pgdir, (void*) mm2, 0) = 0;
+    // test mmio_map_region
+    mm1 = (uintptr_t) mmio_map_region(0, 4097);
+    mm2 = (uintptr_t) mmio_map_region(0, 4096);
+    // check that they're in the right region
+    assert(mm1 >= MMIOBASE && mm1 + 8192 < MMIOLIM);
+    assert(mm2 >= MMIOBASE && mm2 + 8192 < MMIOLIM);
+    // check that they're page-aligned
+    assert(mm1 % PGSIZE == 0 && mm2 % PGSIZE == 0);
+    // check that they don't overlap
+    assert(mm1 + 8192 <= mm2);
+    // check page mappings
+    assert(check_va2pa(kern_pgdir, mm1) == 0);
+    assert(check_va2pa(kern_pgdir, mm1 + PGSIZE) == PGSIZE);
+    assert(check_va2pa(kern_pgdir, mm2) == 0);
+    assert(check_va2pa(kern_pgdir, mm2 + PGSIZE) == ~0);
+    // check permissions
+    assert(*pgdir_walk(kern_pgdir, (void *) mm1, 0) & (PTE_W | PTE_PWT | PTE_PCD));
+    assert(!(*pgdir_walk(kern_pgdir, (void *) mm1, 0) & PTE_U));
+    // clear the mappings
+    *pgdir_walk(kern_pgdir, (void *) mm1, 0) = 0;
+    *pgdir_walk(kern_pgdir, (void *) mm1 + PGSIZE, 0) = 0;
+    *pgdir_walk(kern_pgdir, (void *) mm2, 0) = 0;
 
-	cprintf("check_page() succeeded!\n");
+    cprintf("check_page() succeeded!\n");
 }
 
 // check page_insert, page_remove, &c, with an installed kern_pgdir
 static void
-check_page_installed_pgdir(void)
-{
-	struct PageInfo *pp, *pp0, *pp1, *pp2;
-	struct PageInfo *fl;
-	pte_t *ptep, *ptep1;
-	uintptr_t va;
-	int i;
+check_page_installed_pgdir(void) {
+    struct PageInfo *pp, *pp0, *pp1, *pp2;
+    struct PageInfo *fl;
+    pte_t *ptep, *ptep1;
+    uintptr_t va;
+    int i;
 
-	// check that we can read and write installed pages
-	pp1 = pp2 = 0;
-	assert((pp0 = page_alloc(0)));
-	assert((pp1 = page_alloc(0)));
-	assert((pp2 = page_alloc(0)));
-	page_free(pp0);
-	memset(page2kva(pp1), 1, PGSIZE);
-	memset(page2kva(pp2), 2, PGSIZE);
-	page_insert(kern_pgdir, pp1, (void*) PGSIZE, PTE_W);
-	assert(pp1->pp_ref == 1);
-	assert(*(uint32_t *)PGSIZE == 0x01010101U);
-	page_insert(kern_pgdir, pp2, (void*) PGSIZE, PTE_W);
-	assert(*(uint32_t *)PGSIZE == 0x02020202U);
-	assert(pp2->pp_ref == 1);
-	assert(pp1->pp_ref == 0);
-	*(uint32_t *)PGSIZE = 0x03030303U;
-	assert(*(uint32_t *)page2kva(pp2) == 0x03030303U);
-	page_remove(kern_pgdir, (void*) PGSIZE);
-	assert(pp2->pp_ref == 0);
+    // check that we can read and write installed pages
+    pp1 = pp2 = 0;
+    assert((pp0 = page_alloc(0)));
+    assert((pp1 = page_alloc(0)));
+    assert((pp2 = page_alloc(0)));
+    page_free(pp0);
+    memset(page2kva(pp1), 1, PGSIZE);
+    memset(page2kva(pp2), 2, PGSIZE);
+    page_insert(kern_pgdir, pp1, (void *) PGSIZE, PTE_W);
+    assert(pp1->pp_ref == 1);
+    assert(*(uint32_t *) PGSIZE == 0x01010101U);
+    page_insert(kern_pgdir, pp2, (void *) PGSIZE, PTE_W);
+    assert(*(uint32_t *) PGSIZE == 0x02020202U);
+    assert(pp2->pp_ref == 1);
+    assert(pp1->pp_ref == 0);
+    *(uint32_t *) PGSIZE = 0x03030303U;
+    assert(*(uint32_t *) page2kva(pp2) == 0x03030303U);
+    page_remove(kern_pgdir, (void *) PGSIZE);
+    assert(pp2->pp_ref == 0);
 
-	// forcibly take pp0 back
-	assert(PTE_ADDR(kern_pgdir[0]) == page2pa(pp0));
-	kern_pgdir[0] = 0;
-	assert(pp0->pp_ref == 1);
-	pp0->pp_ref = 0;
+    // forcibly take pp0 back
+    assert(PTE_ADDR(kern_pgdir[0]) == page2pa(pp0));
+    kern_pgdir[0] = 0;
+    assert(pp0->pp_ref == 1);
+    pp0->pp_ref = 0;
 
-	// free the pages we took
-	page_free(pp0);
+    // free the pages we took
+    page_free(pp0);
 
-	cprintf("check_page_installed_pgdir() succeeded!\n");
+    cprintf("check_page_installed_pgdir() succeeded!\n");
 }

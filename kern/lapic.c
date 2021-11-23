@@ -111,6 +111,10 @@ lapic_init(void)
 	lapicw(TPR, 0);
 }
 
+/**
+ * 当前在用哪个CPU
+ * @return
+ */
 int
 cpunum(void)
 {

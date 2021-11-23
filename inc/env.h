@@ -11,6 +11,7 @@ typedef int32_t envid_t;
 
 // An environment ID 'envid_t' has three parts:
 //
+// 32bit长，首位用于作为标识
 // +1+---------------21-----------------+--------10--------+
 // |0|          Uniqueifier             |   Environment    |
 // | |                                  |      Index       |
@@ -25,6 +26,7 @@ typedef int32_t envid_t;
 // envid_ts less than 0 signify errors.  The envid_t == 0 is special, and
 // stands for the current environment.
 
+// 取低10位
 #define LOG2NENV		10
 #define NENV			(1 << LOG2NENV)
 #define ENVX(envid)		((envid) & (NENV - 1))
@@ -46,7 +48,8 @@ enum EnvType {
 struct Env {
     // Saved registers: 用户环境暂停时，所有重要的寄存器的值
 	struct Trapframe env_tf;
-	struct Env *env_link;		// Next free Env
+    // Next free Env: 用于指向下一个空的env，lab中使用env_free_list
+	struct Env *env_link;
 	envid_t env_id;			// Unique environment identifier
 	envid_t env_parent_id;		// env_id of this env's parent
 	enum EnvType env_type;		// Indicates special system environments
@@ -56,9 +59,6 @@ struct Env {
 	// Address space
 	pde_t *env_pgdir;		// Kernel virtual address of page dir
 	int env_cpunum;			// The CPU that the env is running on
-
-	// Address space
-	pde_t *env_pgdir;		// Kernel virtual address of page dir
 
 	// Exception handling
 	void *env_pgfault_upcall;	// Page fault upcall entry point

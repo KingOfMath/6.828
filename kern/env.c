@@ -60,29 +60,6 @@ struct Segdesc gdt[NCPU + 5] =
 
 struct Pseudodesc gdt_pd = {
 	sizeof(gdt) - 1, (unsigned long) gdt
-struct Segdesc gdt[] =
-        {
-                // 0x0 - unused (always faults -- for trapping NULL far pointers)
-                SEG_NULL,
-
-                // 0x8 - kernel code segment
-                [GD_KT >> 3] = SEG(STA_X | STA_R, 0x0, 0xffffffff, 0),
-
-                // 0x10 - kernel data segment
-                [GD_KD >> 3] = SEG(STA_W, 0x0, 0xffffffff, 0),
-
-                // 0x18 - user code segment
-                [GD_UT >> 3] = SEG(STA_X | STA_R, 0x0, 0xffffffff, 3),
-
-                // 0x20 - user data segment
-                [GD_UD >> 3] = SEG(STA_W, 0x0, 0xffffffff, 3),
-
-                // 0x28 - tss, initialized in trap_init_percpu()
-                [GD_TSS0 >> 3] = SEG_NULL
-        };
-
-struct Pseudodesc gdt_pd = {
-        sizeof(gdt) - 1, (unsigned long) gdt
 };
 
 //
@@ -111,6 +88,7 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 	// to ensure that the envid is not stale
 	// (i.e., does not refer to a _previous_ environment
 	// that used the same slot in the envs[] array).
+    // TODO:为什么要检查是否为旧env
 	e = &envs[ENVX(envid)];
 	if (e->env_status == ENV_FREE || e->env_id != envid) {
 		*env_store = 0;
@@ -129,38 +107,6 @@ envid2env(envid_t envid, struct Env **env_store, bool checkperm)
 
 	*env_store = e;
 	return 0;
-envid2env(envid_t envid, struct Env **env_store, bool checkperm) {
-    struct Env *e;
-
-    // If envid is zero, return the current environment.
-    if (envid == 0) {
-        *env_store = curenv;
-        return 0;
-    }
-
-    // Look up the Env structure via the index part of the envid,
-    // then check the env_id field in that struct Env
-    // to ensure that the envid is not stale
-    // (i.e., does not refer to a _previous_ environment
-    // that used the same slot in the envs[] array).
-    e = &envs[ENVX(envid)];
-    if (e->env_status == ENV_FREE || e->env_id != envid) {
-        *env_store = 0;
-        return -E_BAD_ENV;
-    }
-
-    // Check that the calling environment has legitimate permission
-    // to manipulate the specified environment.
-    // If checkperm is set, the specified environment
-    // must be either the current environment
-    // or an immediate child of the current environment.
-    if (checkperm && e != curenv && e->env_parent_id != curenv->env_id) {
-        *env_store = 0;
-        return -E_BAD_ENV;
-    }
-
-    *env_store = e;
-    return 0;
 }
 
 // Mark all environments in 'envs' as free, set their env_ids to 0,
@@ -173,6 +119,7 @@ void
 env_init(void) {
     // Set up envs array
     // LAB 3: Your code here.
+    // 此处要与envs array中保持一致，这样每次allocate空env时使用env[0]
     for (int i = NENV - 1; i >= 0; --i) {
         envs[i].env_id = 0;
         envs[i].env_link = env_free_list;
@@ -245,7 +192,7 @@ env_setup_vm(struct Env *e) {
 
     // 将分配的页交给env
     e->env_pgdir = page2kva(p);
-    // 为了保证env_free正常运行
+    // 一般而言，物理地址在UTOP以上的pp_ref不用维护，此处为了保证env_pgdir的env_free正常运行
     p->pp_ref++;
     // UTOP: Top of user-accessible VM，上面才有用户VM
     // NPDENTRIES: pgdir总数
@@ -379,6 +326,7 @@ region_alloc(struct Env *e, void *va, size_t len) {
 //  - How might load_icode fail?  What might be wrong with the given input?
 //
 /**
+ * TODO: 为什么要load一个ELF文件？
  * 首先要清楚JOS使用的ELF文件格式
  * 我们要判断ELF文件格式是否合法，并加载每一个被标记为ELF_PROG_LOAD的program header对应的segment
  * binary给出了ELF文件被嵌在内核中的位置
@@ -597,6 +545,10 @@ env_run(struct Env *e) {
     curenv->env_status = ENV_RUNNING;
     curenv->env_runs++;
     lcr3(PADDR(curenv->env_pgdir));
+
+    // In env_run(), release the lock right before switching to user mode.
+    // Do not do that too early or too late, otherwise you will experience races or deadlocks.
+    unlock_kernel();
 
     // Step 2: Use env_pop_tf() to restore the environment's
     //	   registers and drop into user mode in the

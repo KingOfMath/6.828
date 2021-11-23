@@ -35,15 +35,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab2C">
+    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab4">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/inc/elf.h" beforeDir="false" afterPath="$PROJECT_DIR$/inc/elf.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kern/env.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/env.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/pmap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/pmap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/sched.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/sched.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kern/syscall.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/syscall.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/kern/trap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trap.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/trapentry.S" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trapentry.S" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/libmain.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/libmain.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,6 +56,11 @@
     </projectState>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="Anish Athalye &lt;me@anishathalye.com&gt;" />
+      </list>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="lab3" />
@@ -74,6 +76,14 @@
       <filtered-out-file-type name="TAG" />
       <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
     </file-type-list>
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/inc/memlayout.h" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="JsbtTreeLayoutManager">
+    <layout place="tools.popupGrunt">
+      <scroll-view-position x="0" y="0" />
+    </layout>
   </component>
   <component name="ProjectId" id="20jATDGSRcpUUeLQPl172RCKNoY" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -100,6 +110,7 @@
     <force-push-targets>
       <force-push-target remote-path="origin" branch="main" />
       <force-push-target remote-path="origin" branch="lab2" />
+      <force-push-target remote-path="origin" branch="lab4" />
     </force-push-targets>
   </component>
   <component name="RunManager" selected="Makefile Application.all">
@@ -255,6 +266,11 @@
       <workItem from="1636552514820" duration="7015000" />
       <workItem from="1636856745772" duration="13034000" />
       <workItem from="1636987094040" duration="642000" />
+      <workItem from="1637685095385" duration="2553000" />
+      <workItem from="1638340259122" duration="6132000" />
+      <workItem from="1638349046738" duration="13898000" />
+      <workItem from="1638459992830" duration="708000" />
+      <workItem from="1638460936198" duration="3676000" />
     </task>
     <task id="LOCAL-00001" summary="shell">
       <created>1636557338424</created>
@@ -305,7 +321,14 @@
       <option name="project" value="LOCAL" />
       <updated>1637155637072</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="lab4">
+      <created>1637685334887</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1637685334887</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -341,6 +364,8 @@
     <MESSAGE value="lab2A" />
     <MESSAGE value="lab2B" />
     <MESSAGE value="lab2C" />
-    <option name="LAST_COMMIT_MESSAGE" value="lab2C" />
+    <MESSAGE value="Lab 4" />
+    <MESSAGE value="lab4" />
+    <option name="LAST_COMMIT_MESSAGE" value="lab4" />
   </component>
 </project>

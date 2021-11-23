@@ -12,6 +12,7 @@
  */
 
 // Global descriptor numbers
+// GDT 可以用来转换优先级
 #define GD_KT     0x08     // kernel text
 #define GD_KD     0x10     // kernel data
 #define GD_UT     0x18     // user text
@@ -103,9 +104,10 @@
 
 #define ULIM		(MMIOBASE)
 
-/*
+/**
  * User read-only mappings! Anything below here til UTOP are readonly to user.
  * They are global pages mapped in at env allocation time.
+ * 这一部分均是pmap中需要映射并分配内存的部分，均为只读态
  */
 
 // User read-only virtual page table (see 'uvpt' below)
