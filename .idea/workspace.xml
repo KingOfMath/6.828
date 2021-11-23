@@ -36,8 +36,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab2C">
-      <change afterPath="$PROJECT_DIR$/lab2.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/sh.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/inc/elf.h" beforeDir="false" afterPath="$PROJECT_DIR$/inc/elf.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/env.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/env.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/pmap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/pmap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/syscall.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/syscall.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/trap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/kern/trapentry.S" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trapentry.S" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libmain.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/libmain.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -207,9 +213,9 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -249,7 +255,6 @@
       <workItem from="1636552514820" duration="7015000" />
       <workItem from="1636856745772" duration="13034000" />
       <workItem from="1636987094040" duration="642000" />
-      <workItem from="1637683584326" duration="419000" />
     </task>
     <task id="LOCAL-00001" summary="shell">
       <created>1636557338424</created>
@@ -317,7 +322,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="lab4" />
+                        <option value="lab2" />
                       </list>
                     </value>
                   </entry>

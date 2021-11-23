@@ -1,0 +1,9 @@
+<changelist name="err" date="1636559476220" recycled="false">
+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/err/shelved.patch" />
+  <option name="DESCRIPTION" value="err" />
+  <binary>
+    <option name="BEFORE_PATH" />
+    <option name="AFTER_PATH" value="a.out" />
+    <option name="SHELVED_PATH" value="$PROJECT_DIR$/.idea/shelf/err/a.out" />
+  </binary>
+</changelist>

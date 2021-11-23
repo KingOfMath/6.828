@@ -33,6 +33,7 @@ struct Pseudodesc idt_pd = {
 
 static const char *trapname(int trapno)
 {
+    // 错误名
 	static const char * const excnames[] = {
 		"Divide error",
 		"Debug",
@@ -72,6 +73,12 @@ trap_init(void)
 	extern struct Segdesc gdt[];
 
 	// LAB 3: Your code here.
+    extern long handlers[][3];
+
+    // Set up a normal interrupt/trap gate descriptor.
+    for (int i = 0; i < 19 ; ++i) {
+        SETGATE(idt[handlers[i][1]], 0, GD_KT, handlers[i][0], handlers[i][2]);
+    }
 
 	// Per-CPU setup 
 	trap_init_percpu();
@@ -190,6 +197,29 @@ trap_dispatch(struct Trapframe *tf)
 	// interrupt using lapic_eoi() before calling the scheduler!
 	// LAB 4: Your code here.
 
+    int ret;
+    switch (tf->tf_trapno) {
+        case T_PGFLT:
+            cprintf("PAGE FAULT\n");
+            page_fault_handler(tf);
+            return;
+        case T_BRKPT:
+            cprintf("BREAK POINT\n");
+            monitor(tf);
+            return;
+        case T_SYSCALL:
+            cprintf("SYSTEM CALL\n");
+            // Generic system call: pass system call number in AX,
+            // up to five parameters in DX, CX, BX, DI, SI.
+            // Interrupt kernel with T_SYSCALL.
+            // 需要记录系统调用号，否则无法pass
+            ret = syscall(tf->tf_regs.reg_eax, tf->tf_regs.reg_edx, tf->tf_regs.reg_ecx,
+                    tf->tf_regs.reg_ebx, tf->tf_regs.reg_edi, tf->tf_regs.reg_esi);
+            tf->tf_regs.reg_eax = ret;
+            return;
+        default:
+            break;
+    }
 	// Unexpected trap: The user process or the kernel has a bug.
 	print_trapframe(tf);
 	if (tf->tf_cs == GD_KT)
@@ -271,6 +301,9 @@ page_fault_handler(struct Trapframe *tf)
 	// Handle kernel-mode page faults.
 
 	// LAB 3: Your code here.
+    if( (tf->tf_cs & 3) == 0) {
+        panic("page_fault in kernel mode, fault address %d\n", fault_va);
+    }
 
 	// We've already handled kernel-mode exceptions, so if we get here,
 	// the page fault happened in user mode.
