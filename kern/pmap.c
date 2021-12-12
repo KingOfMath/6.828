@@ -283,7 +283,7 @@ mem_init_mp(void) {
         uintptr_t kstacktop_i = KSTACKTOP - i * (KSTKSIZE + KSTKGAP);
         // backed by [kstacktop_i - KSTKSIZE, kstacktop_i) physical memory
         boot_map_region(kern_pgdir, kstacktop_i-KSTKSIZE, KSTKSIZE,
-                        PADDR(percpu_kstacks[i]), PTE_W);
+                        PADDR(percpu_kstacks[i]), PTE_W | PTE_P);
     }
 }
 

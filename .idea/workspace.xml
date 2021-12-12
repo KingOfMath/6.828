@@ -35,12 +35,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab4">
+    <list default="true" id="13c99753-ac77-45dc-a71c-8655dfd7b6ad" name="Changes" comment="lab4-B">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/env.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/env.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/sched.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/sched.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/syscall.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/syscall.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/kern/trap.c" beforeDir="false" afterPath="$PROJECT_DIR$/kern/trap.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/libmain.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/libmain.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/user/fairness.c" beforeDir="false" afterPath="$PROJECT_DIR$/user/fairness.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -224,9 +222,9 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -271,6 +269,7 @@
       <workItem from="1638349046738" duration="13898000" />
       <workItem from="1638459992830" duration="708000" />
       <workItem from="1638460936198" duration="3676000" />
+      <workItem from="1639146437946" duration="27172000" />
     </task>
     <task id="LOCAL-00001" summary="shell">
       <created>1636557338424</created>
@@ -328,7 +327,21 @@
       <option name="project" value="LOCAL" />
       <updated>1637685334887</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="lab4-A">
+      <created>1638602607378</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1638602607378</updated>
+    </task>
+    <task id="LOCAL-00010" summary="lab4-B">
+      <created>1639294811885</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1639294811885</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -345,7 +358,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="lab2" />
+                        <option value="lab4" />
                       </list>
                     </value>
                   </entry>
@@ -362,10 +375,12 @@
     <MESSAGE value="shell" />
     <MESSAGE value="err" />
     <MESSAGE value="lab2A" />
-    <MESSAGE value="lab2B" />
     <MESSAGE value="lab2C" />
     <MESSAGE value="Lab 4" />
     <MESSAGE value="lab4" />
-    <option name="LAST_COMMIT_MESSAGE" value="lab4" />
+    <MESSAGE value="lab2B" />
+    <MESSAGE value="lab4-A" />
+    <MESSAGE value="lab4-B" />
+    <option name="LAST_COMMIT_MESSAGE" value="lab4-B" />
   </component>
 </project>

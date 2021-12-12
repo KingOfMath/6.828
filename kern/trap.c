@@ -80,7 +80,7 @@ trap_init(void)
         SETGATE(idt[handlers[i][1]], 0, GD_KT, handlers[i][0], handlers[i][2]);
     }
 
-	// Per-CPU setup 
+	// Per-CPU setup
 	trap_init_percpu();
 }
 
@@ -186,8 +186,6 @@ static void
 trap_dispatch(struct Trapframe *tf)
 {
 	// Handle processor exceptions.
-	// LAB 3: Your code here.
-
 	// Handle spurious interrupts
 	// The hardware sometimes raises these because of noise on the
 	// IRQ line or other reasons. We don't care.
@@ -343,6 +341,52 @@ page_fault_handler(struct Trapframe *tf)
 	//   (the 'tf' variable points at 'curenv->env_tf').
 
 	// LAB 4: Your code here.
+    /**
+                            <-- UXSTACKTOP
+        trap-time esp
+        trap-time eflags
+        trap-time eip
+        trap-time eax       start of struct PushRegs
+        trap-time ecx
+        trap-time edx
+        trap-time ebx
+        trap-time esp
+        trap-time ebp
+        trap-time esi
+        trap-time edi       end of struct PushRegs
+        tf_err (error code)
+        fault_va            <-- %esp when handler is run
+     */
+    if (curenv->env_pgfault_upcall != NULL) {
+        struct UTrapframe *uTrapframe = NULL;
+
+        // To test whether tf->tf_esp is already on the user exception stack,
+        // check whether it is in the range between UXSTACKTOP-PGSIZE and UXSTACKTOP-1, inclusive.
+        if (tf->tf_esp > UXSTACKTOP - PGSIZE && tf->tf_esp < UXSTACKTOP) {
+            // reserve a word
+            uTrapframe = (struct UTrapframe *) (tf->tf_esp - sizeof(struct UTrapframe) - 4);
+        } else {
+            uTrapframe = (struct UTrapframe *) (UXSTACKTOP - sizeof(struct UTrapframe));
+        }
+
+        // check whether the env has a page mapped at exception stack,
+        // and has write permission to it.
+        user_mem_assert(curenv, uTrapframe, sizeof(struct UTrapframe), PTE_W);
+
+        // construct for user-level page fault handler
+        uTrapframe->utf_eflags = tf->tf_eflags;
+        uTrapframe->utf_eip = tf->tf_eip;
+        uTrapframe->utf_err = tf->tf_err;
+        uTrapframe->utf_fault_va = fault_va;
+        uTrapframe->utf_esp = tf->tf_esp;
+        uTrapframe->utf_regs = tf->tf_regs;
+
+        // update current esp
+        curenv->env_tf.tf_eip = (uintptr_t) curenv->env_pgfault_upcall;
+        curenv->env_tf.tf_esp = (uintptr_t) uTrapframe;
+
+        env_run(curenv);
+    }
 
 	// Destroy the environment that caused the fault.
 	cprintf("[%08x] user fault va %08x ip %08x\n",

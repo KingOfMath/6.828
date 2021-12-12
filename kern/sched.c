@@ -34,7 +34,7 @@ sched_yield(void)
     size_t round_idx = idle == NULL ? 0 : ENVX(idle->env_id) + 1;
     for (int j = 0; j < NENV; ++j, round_idx = (round_idx + 1 ) % NENV) {
         if ( envs[round_idx].env_status == ENV_RUNNABLE ) {
-            env_run(envs + round_idx);
+            env_run(&envs[round_idx]);
         }
     }
 

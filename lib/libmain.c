@@ -21,7 +21,7 @@ libmain(int argc, char **argv)
 		binaryname = argv[0];
 
 	// call user main routine
-	umain(argc, argv);
+    umain(argc, argv);
 
 	// exit gracefully
 	exit();
